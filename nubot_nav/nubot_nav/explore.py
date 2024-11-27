@@ -102,10 +102,11 @@ class Explore(Node):
             self.changing_goal_pose.pose.position.y = (
                         occ_map.info.origin.position.y + occ_map.info.resolution * row
                         ) 
-            if(calculate_euclidean_distance(self.robot_pose, self.changing_goal_pose) > 10.0):
-                self.get_logger().info('Returning!')
+            if(calculate_euclidean_distance(self.robot_pose, self.changing_goal_pose) > 15.0):
+                self.get_logger().info('Finding New Goal Pose...')
                 return
             else:
+                self.get_logger().info('Checking for New Goal Pose...')
                 self.send_goal_pose()
           
 
@@ -118,13 +119,11 @@ class Explore(Node):
         if (len(self.dist_tracker) > 1):
             if (-0.1 < self.dist_tracker[-2] - current_dist_to_goal < 0.1):
                 current_dist_to_goal = 0.0
-        self.get_logger().info(f'{current_dist_to_goal}')
-        
         if(current_dist_to_goal < 0.5):
             self.goal_pose.pose.position.x = self.changing_goal_pose.pose.position.x
             self.goal_pose.pose.position.y = self.changing_goal_pose.pose.position.y
             self.goal_pose.header.frame_id = 'map'
-            self.get_logger().info(f'{self.goal_pose}')
+            self.get_logger().info(f'Goal Pose: {{x: {self.goal_pose.pose.position.x}, y: {self.goal_pose.pose.position.y}}}')
             self.goal_pub.publish(self.goal_pose)
 
 

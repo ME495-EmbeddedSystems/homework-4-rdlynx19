@@ -6,9 +6,9 @@
         <arg name="world" value="nubot_simple.sdf"/>
     </include>
     
-    <include file="$(find-pkg-share nav2_bringup)/launch/navigation_launch.py">
+    <include file="$(find-pkg-share nav2_bringup)/launch/bringup_launch.py">
         <arg name="use_sim_time" value="true"/>
-        <!-- <arg name="params_file" value="$(find-pkg-share nubot_nav)/$(var params)"/> -->
+        <arg name="params_file" value="$(find-pkg-share nubot_nav)/$(var params)"/>
     </include>
     
     <include file="$(find-pkg-share slam_toolbox)/launch/online_async_launch.py">
