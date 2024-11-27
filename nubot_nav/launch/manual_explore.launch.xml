@@ -1,12 +1,14 @@
 <launch>   
     <arg name="rviz_config" default="nubot_config.rviz"/>
+    <arg name="params" default="nav2_params.yaml"/>
     <include file="$(find-pkg-share nubot)/launch/simulate.launch.xml">
         <arg name="use_rviz" value="false"/>
+        <arg name="world" value="nubot_simple.sdf"/>
     </include>
     
     <include file="$(find-pkg-share nav2_bringup)/launch/navigation_launch.py">
         <arg name="use_sim_time" value="true"/>
-        <!-- <arg name="params_file" value="$(find-pkg-share nubot_nav)/nav2_params.yaml"/> -->
+        <!-- <arg name="params_file" value="$(find-pkg-share nubot_nav)/$(var params)"/> -->
     </include>
     
     <include file="$(find-pkg-share slam_toolbox)/launch/online_async_launch.py">

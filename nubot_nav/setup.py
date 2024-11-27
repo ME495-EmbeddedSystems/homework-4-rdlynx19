@@ -1,3 +1,4 @@
+"""Setup nubot nav package."""
 from setuptools import find_packages, setup
 
 package_name = 'nubot_nav'
@@ -11,6 +12,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml',
                                    'launch/manual_explore.launch.xml',
+                                   'launch/explore.launch.xml',
                                    'config/nav2_params.yaml',
                                    'config/nubot_config.rviz'
                                    ]),
