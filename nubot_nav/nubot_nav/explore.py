@@ -18,8 +18,8 @@ from geometry_msgs.msg import PoseStamped, TransformStamped
 from nav_msgs.msg import OccupancyGrid
 
 import rclpy
-import rclpy.time
 from rclpy.node import Node
+import rclpy.time
 
 import tf2_ros
 from tf2_ros.buffer import Buffer
