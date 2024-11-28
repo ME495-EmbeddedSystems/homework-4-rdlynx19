@@ -82,6 +82,7 @@ class Explore(Node):
 
     def pose_tmr(self):
         """Get the robot's pose wrt map."""
+        # --------------- Begin_Citation[2] -------------- #
         try:
             map_baselink_lookup = self.tf_buffer.lookup_transform(
                 'map', 'base_link', rclpy.time.Time()
@@ -97,6 +98,7 @@ class Explore(Node):
         except tf2_ros.ExtrapolationException as e:
             # the times are two far apart to extrapolate
             self.get_logger().debug(f'Extrapolation exception: {e}')
+        # --------------- End_Citation[2] ---------------- #
 
     def map_callback(self, map_msg):
         """
