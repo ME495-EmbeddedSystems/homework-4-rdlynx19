@@ -5,6 +5,7 @@ The robot autonomously explores the environment by picking random open or unknow
 
 ## Manual Exploration
 To manually explore the environment, use the command:
+
 `ros2 launch nubot_nav manual_explore.launch.xml`, and then give waypoints using the RViz GUI.
 
 Here is a video of the robot manually exploring the environment:
