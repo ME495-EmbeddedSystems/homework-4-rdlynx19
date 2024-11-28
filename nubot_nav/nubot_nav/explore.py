@@ -1,4 +1,15 @@
-"""Autonomous exploration of the environment."""
+"""
+The Explore Node to autonomously explore the environment using random points.
+
+Publishers
+----------
++ /goal_pose (geometry_msgs/PoseStamped) - The goal pose of the robot
+
+Subscribers
+-----------
++ /map (nav_msgs/OccupancyGrid) - The current map of the environment
+
+"""
 import math
 import random
 
@@ -52,19 +63,21 @@ class Explore(Node):
     def __init__(self):
         """Initialise member variables of the class."""
         super().__init__('explore')
+        # Map Subscriber
         self.map_sub = self.create_subscription(OccupancyGrid, 'map',
                                                 self.map_callback, 10)
-
+        # Goal Publisher
         self.goal_pub = self.create_publisher(PoseStamped, 'goal_pose', 10)
 
+        # Timer to lookup map->base_link transform
         self.tf_pub = self.create_timer(1, self.pose_tmr)
         self.tf_buffer = Buffer()
         self.listener = TransformListener(self.tf_buffer, self)
 
+        # Helper variables to store the robot and goal poses
         self.robot_pose = PoseStamped()
         self.goal_pose = PoseStamped()
         self.changing_goal_pose = PoseStamped()
-
         self.dist_tracker = []
 
     def pose_tmr(self):
@@ -108,8 +121,10 @@ class Explore(Node):
             if (calculate_euclidean_distance(self.robot_pose,
                                              self.changing_goal_pose) > 15.0):
                 self.get_logger().info('Finding New Goal Pose...')
+                # Skip the current goal pose if it is too far
                 return
             else:
+                # Send a new valid goal pose to be executed
                 self.get_logger().info('Checking for New Goal Pose...')
                 self.send_goal_pose()
 
@@ -118,6 +133,7 @@ class Explore(Node):
         current_dist_to_goal = calculate_euclidean_distance(
             self.robot_pose, self.goal_pose)
         self.dist_tracker.append(current_dist_to_goal)
+        # Check if the robot is stuck or has stopped
         if (len(self.dist_tracker) > 1):
             if (-0.1 < self.dist_tracker[-2] - current_dist_to_goal < 0.1):
                 current_dist_to_goal = 0.0
