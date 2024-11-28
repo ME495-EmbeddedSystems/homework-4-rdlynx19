@@ -108,8 +108,10 @@ class Explore(Node):
         occ_map = map_msg
         i = random.randint(1, len(occ_map.data)-2)
         if occ_map.data[i] == -1 or occ_map.data[i] == 0:
+            # --------------Begin_Citation[1]-------------- #
             row = i // occ_map.info.width
             col = i % occ_map.info.width
+            # --------------End_Citation[1]---------------- #
             self.changing_goal_pose.pose.position.x = (
                         occ_map.info.origin.position.x +
                         occ_map.info.resolution * col
