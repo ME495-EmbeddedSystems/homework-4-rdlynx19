@@ -1,8 +1,8 @@
 """Autonomous exploration of the environment."""
-import random, math, copy
+import math
+import random
 
-from geometry_msgs.msg import (
-    Pose, PoseStamped, PoseWithCovarianceStamped, TransformStamped, Vector3)
+from geometry_msgs.msg import PoseStamped, TransformStamped
 
 from nav_msgs.msg import OccupancyGrid
 
@@ -17,7 +17,7 @@ from tf2_ros.transform_listener import TransformListener
 
 def vec_to_pose(transform: TransformStamped, pose: PoseStamped):
     """
-    Convert TransformStamped to PoseStamped
+    Convert TransformStamped to PoseStamped.
 
     :param transform: transform stamped from map to base_link
     :param pose: pose stamped indicating the current robot pose
@@ -29,10 +29,11 @@ def vec_to_pose(transform: TransformStamped, pose: PoseStamped):
     pose.header.frame_id = transform.header.frame_id
     return pose
 
-def calculate_euclidean_distance(robot_pose: PoseStamped, 
+
+def calculate_euclidean_distance(robot_pose: PoseStamped,
                                  goal_pose: PoseStamped):
     """
-    Calculate the distance between two points.
+    Calculate the planar distance between two points.
 
     :param robot_pose: the current pose of the robot
     :param goal_pose: the current goal pose
@@ -65,7 +66,7 @@ class Explore(Node):
         self.changing_goal_pose = PoseStamped()
 
         self.dist_tracker = []
-    
+
     def pose_tmr(self):
         """Get the robot's pose wrt map."""
         try:
@@ -83,7 +84,7 @@ class Explore(Node):
         except tf2_ros.ExtrapolationException as e:
             # the times are two far apart to extrapolate
             self.get_logger().debug(f'Extrapolation exception: {e}')
-        
+
     def map_callback(self, map_msg):
         """
         Get the current map data.
@@ -97,33 +98,38 @@ class Explore(Node):
             row = i // occ_map.info.width
             col = i % occ_map.info.width
             self.changing_goal_pose.pose.position.x = (
-                        occ_map.info.origin.position.x + occ_map.info.resolution * col
+                        occ_map.info.origin.position.x +
+                        occ_map.info.resolution * col
                         )
             self.changing_goal_pose.pose.position.y = (
-                        occ_map.info.origin.position.y + occ_map.info.resolution * row
-                        ) 
-            if(calculate_euclidean_distance(self.robot_pose, self.changing_goal_pose) > 15.0):
+                        occ_map.info.origin.position.y +
+                        occ_map.info.resolution * row
+                        )
+            if (calculate_euclidean_distance(self.robot_pose,
+                                             self.changing_goal_pose) > 15.0):
                 self.get_logger().info('Finding New Goal Pose...')
                 return
             else:
                 self.get_logger().info('Checking for New Goal Pose...')
                 self.send_goal_pose()
-          
 
     def send_goal_pose(self):
-        """
-        Publish goal pose command
-        """
-        current_dist_to_goal = calculate_euclidean_distance(self.robot_pose, self.goal_pose) 
+        """Publish a goal pose command to the robot."""
+        current_dist_to_goal = calculate_euclidean_distance(
+            self.robot_pose, self.goal_pose)
         self.dist_tracker.append(current_dist_to_goal)
         if (len(self.dist_tracker) > 1):
             if (-0.1 < self.dist_tracker[-2] - current_dist_to_goal < 0.1):
                 current_dist_to_goal = 0.0
-        if(current_dist_to_goal < 0.5):
-            self.goal_pose.pose.position.x = self.changing_goal_pose.pose.position.x
-            self.goal_pose.pose.position.y = self.changing_goal_pose.pose.position.y
+        if (current_dist_to_goal < 0.5):
+            self.goal_pose.pose.position.x = (
+                self.changing_goal_pose.pose.position.x)
+            self.goal_pose.pose.position.y = (
+                self.changing_goal_pose.pose.position.y)
             self.goal_pose.header.frame_id = 'map'
-            self.get_logger().info(f'Goal Pose: {{x: {self.goal_pose.pose.position.x}, y: {self.goal_pose.pose.position.y}}}')
+            self.get_logger().info(f'Goal Pose: {{x: {
+                self.goal_pose.pose.position.x}, y: {
+                    self.goal_pose.pose.position.y}}}')
             self.goal_pub.publish(self.goal_pose)
 
 
@@ -133,4 +139,3 @@ def main(args=None):
     node = Explore()
     rclpy.spin(node)
     rclpy.shutdown()
-
